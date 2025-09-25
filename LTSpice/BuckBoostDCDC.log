@@ -1,0 +1,9 @@
+C:\Users\hotma\Documents\Solar-project\LTSpice\BuckBoostDCDC.net(3): Unknown parameter
+L1 N001 0 L
+          ^
+C:\Users\hotma\Documents\Solar-project\LTSpice\BuckBoostDCDC.net(8): Unknown parameter
+V1 V_in 0 V
+          ^
+C:\Users\hotma\Documents\Solar-project\LTSpice\BuckBoostDCDC.net(9): Expected DevParamVector here.
+V2 N001 N002 PULSE()
+                  ^^
