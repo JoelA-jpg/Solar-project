@@ -1,0 +1,17 @@
+LTspice 24.1.10 for Windows
+Circuit: C:\Users\hotma\Documents\Solar-project\LTSpice\voltage adder.net
+Start Time: Thu Sep 25 15:43:53 2025
+solver = Normal
+Maximum thread count: 8
+tnom = 27
+temp = 27
+method = trap
+Instance "u1:M5": Length shorter than recommended for a level 2 MOSFET.
+Instance "u1:M6": Length shorter than recommended for a level 2 MOSFET.
+Direct Newton iteration for .op point succeeded.
+Total elapsed time: 0.312 seconds.
+
+Files loaded:
+C:\Users\hotma\Documents\Solar-project\LTSpice\voltage adder.net
+C:\Users\hotma\AppData\Local\LTspice\lib\sub\ADI.lib
+
