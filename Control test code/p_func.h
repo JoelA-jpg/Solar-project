@@ -1,0 +1,1 @@
+double p_func(double V_diff, double K);
