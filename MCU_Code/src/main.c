@@ -3,13 +3,13 @@
 #include <util/delay.h>
 
 #define F_CPU 1000000UL
-#define PERIOD    20000   // 20 ms total period in µs
+//#define PERIOD    20000   // 20 ms total period in µs
 #define MIN_PULSE 1500    // 1.5 ms
 #define MAX_PULSE 2200    // 2.2 ms
 
-volatile uint16_t pulsewidth = 100; // current high pulse width
+volatile uint16_t pulsewidth = 500; // current high pulse width
 volatile uint8_t phase = 0;           // 0 = high, 1 = low
-
+volatile uint16_t PERIOD = 20000 * 1.015;
 
 // Initialize Timer1
 void Timer1_init(void)
@@ -17,7 +17,7 @@ void Timer1_init(void)
     DDRB |= (1 << PB1);        // PB1 / OC1A as output
 
     TCCR1A = 0;                // normal port operation
-    TCCR1B = (1 << WGM12) | (1 << CS10); // CTC mode, no prescaler
+    TCCR1B = (1 << WGM12) | (0 << CS12) | (1 << CS11) | (0 << CS10); // CTC mode, no prescaler
 
     OCR1A = pulsewidth;       // initial compare value
     TIMSK1 = (1 << OCIE1A);    // enable compare A interrupt
@@ -37,14 +37,16 @@ ISR(TIMER1_COMPA_vect)
         // End of high pulse → set pin low
         PORTB &= ~(1 << PB1);
         phase = 1;
-        OCR1A = (((PERIOD*5.128) - pulsewidth)*8.14); // low phase duration
+        //OCR1A = pulsewidth - 1;
+        OCR1A = PERIOD - pulsewidth; // low phase duration 8.14
     }
     else
     {
         // End of low phase → set pin high
         PORTB |= (1 << PB1);
         phase = 0;
-        OCR1A = pulsewidth*8.14;          // high phase duration
+        //OCR1A = (PERIOD - pulsewidth) - 1;
+        OCR1A = pulsewidth * 1.01;          // high phase duration
     }
 }
 
@@ -59,7 +61,7 @@ int main(void)
     {
         // Sweep pulse from MIN_PULSE to MAX_PULSE
 
-        for(int i = 1; i < 5; i++){
+        for(int i = 1; i < 6; i++){
         Update_Pulse(pw*i); // update high pulse width dynamically
         _delay_ms(4000*8.14);
         }
