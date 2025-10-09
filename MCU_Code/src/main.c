@@ -9,7 +9,7 @@
 
 volatile uint16_t pulsewidth = 500; // current high pulse width
 volatile uint8_t phase = 0;           // 0 = high, 1 = low
-volatile uint16_t PERIOD = 20000 * 1.015;
+volatile uint16_t PERIOD = 20000 * 1.01;
 
 // Initialize Timer1
 void Timer1_init(void)
