@@ -2,7 +2,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
-#define F_CPU 1000000UL
+#define F_CPU 8000000UL
 //#define PERIOD    20000   // 20 ms total period in µs
 #define MIN_PULSE 1500    // 1.5 ms
 #define MAX_PULSE 2200    // 2.2 ms
