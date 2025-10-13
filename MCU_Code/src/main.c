@@ -1,6 +1,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+#include <p_func.h>
 
 #define F_CPU 8000000UL
 //#define PERIOD    20000   // 20 ms total period in µs
@@ -21,6 +22,14 @@ void Timer1_init(void)
 
     OCR1A = pulsewidth;       // initial compare value
     TIMSK1 = (1 << OCIE1A);    // enable compare A interrupt
+}
+
+static inline void initADC0(void){
+    // ADC0 and AVCC as reference
+    ADMUX = (1 << REFS0) | (0 << MUX0); // REFS0=1: AVCC, MUX[3:0]=0: ADC0
+    ADMUX &= 0xF0; // Clear MUX bits (bits 3:0)
+    ADCSRA |= (1 << ADPS1) | (1 << ADPS0); // prescaler = 8
+    ADCSRA |= (1 << ADEN); // enable ADC
 }
 
 // Update pulse width dynamically
@@ -53,17 +62,22 @@ ISR(TIMER1_COMPA_vect)
 int main(void)
 {
     Timer1_init();
+    initADC0();
     sei(); // enable global interrupts
 
+    //init variables
+    uint16_t adc_value = 0;
     uint16_t pw = 500;
+    uint16_t K = 2;
 
     while (1)
     {
-        // Sweep pulse from MIN_PULSE to MAX_PULSE
-
-        for(int i = 1; i < 6; i++){
-        Update_Pulse(pw*i); // update high pulse width dynamically
-        _delay_ms(4000*8.14);
-        }
+        ADCSRA |= (1 << ADSC); 
+        loop_until_bit_is_clear(ADCSRA, ADSC); 
+        adc_value = ADC; // Read ADC value (0-1023)
+        pw = p_func(pw, adc_value, K); // proportional control pw
+        Update_Pulse(pw); // update high pulse width dynamically
+        _delay_ms(40*8.14);
+        
     }
 }
