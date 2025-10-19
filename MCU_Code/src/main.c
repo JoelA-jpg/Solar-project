@@ -43,7 +43,7 @@ ISR(TIMER1_COMPA_vect)
 {
     if (phase == 0)
     {
-        // End of high pulse → set pin low
+        // End of high pulse -> set pin low
         PORTB &= ~(1 << PB1);
         phase = 1;
         //OCR1A = pulsewidth - 1;
@@ -51,7 +51,7 @@ ISR(TIMER1_COMPA_vect)
     }
     else
     {
-        // End of low phase → set pin high
+        // End of low phase -> set pin high
         PORTB |= (1 << PB1);
         phase = 0;
         //OCR1A = (PERIOD - pulsewidth) - 1;
