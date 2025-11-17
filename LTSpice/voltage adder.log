@@ -1,6 +1,6 @@
 LTspice 24.1.10 for Windows
 Circuit: C:\Users\hotma\Documents\Solar-project\LTSpice\voltage adder.net
-Start Time: Wed Oct  8 10:32:59 2025
+Start Time: Fri Nov 14 14:23:22 2025
 solver = Normal
 Maximum thread count: 8
 tnom = 27
@@ -9,21 +9,26 @@ method = trap
 Direct Newton iteration failed to find .op point.  (Use ".option noopiter" to skip.)
 Starting Gmin stepping
 Increasing initial diagonal Gmin to 100
-Increasing initial diagonal Gmin to 1000
-Increasing initial diagonal Gmin to 10000
-Increasing initial diagonal Gmin to 100000
-Increasing initial diagonal Gmin to 1e+06
-Initial Gmin=1e+06 failed
-Gmin stepping failed
+Gmin = 100
+Gmin = 10.7374
+Gmin = 1.15292
+Gmin = 0.123794
+Gmin = 0.0132923
+Gmin = 0.00142725
+Gmin = 0.00015325
+Gmin = 1.6455e-05
+Gmin = 1.76685e-06
+Gmin = 1.89714e-07
+Gmin = 2.03704e-08
+Gmin = 2.18725e-09
+Gmin = 2.34854e-10
+Gmin = 2.52173e-11
+Gmin = 2.70769e-12
+Gmin = 2.90735e-13
+Gmin = 0
+Gmin stepping succeeded in finding the operating point.
 
-Starting source stepping with srcstepmethod=0
-Source Step = 3.0303%
-Source Step = 33.3333%
-Source Step = 63.6364%
-Source Step = 93.9394%
-Source stepping succeeded in finding the operating point.
-
-Total elapsed time: 0.222 seconds.
+Total elapsed time: 0.221 seconds.
 
 Files loaded:
 C:\Users\hotma\Documents\Solar-project\LTSpice\voltage adder.net

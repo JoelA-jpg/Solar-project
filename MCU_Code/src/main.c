@@ -68,16 +68,16 @@ int main(void)
     //init variables
     uint16_t adc_value = 0;
     uint16_t pw = 500;
-    uint16_t K = 2;
+    uint16_t K = 1;
 
     while (1)
     {
         ADCSRA |= (1 << ADSC); 
         loop_until_bit_is_clear(ADCSRA, ADSC); 
         adc_value = ADC; // Read ADC value (0-1023)
-        pw = p_func(pw, adc_value, K); // proportional control pw
+        pw = p_funcy(pw, adc_value, K); // proportional control pw
         Update_Pulse(pw); // update high pulse width dynamically
-        _delay_ms(40*8.14);
+        _delay_ms(20*8.14);
         
     }
 }
