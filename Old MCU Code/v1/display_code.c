@@ -1,0 +1,171 @@
+#include <avr/io.h>
+#include <util/delay.h>
+#include "font.h"
+
+// -------------------------------------------------------
+// TFT Pins (ATmega328P PORTB)
+// -------------------------------------------------------
+#define CS   PB2
+#define DC   PB1
+#define RST  PB0
+
+#define CS_LOW()   (PORTB &= ~(1<<CS))
+#define CS_HIGH()  (PORTB |=  (1<<CS))
+#define DC_LOW()   (PORTB &= ~(1<<DC))
+#define DC_HIGH()  (PORTB |=  (1<<DC))
+#define RST_LOW()  (PORTB &= ~(1<<RST))
+#define RST_HIGH() (PORTB |=  (1<<RST))
+
+// -------------------------------------------------------
+// SPI
+// -------------------------------------------------------
+void SPI_init() {
+    DDRB |= (1<<PB3)|(1<<PB5)|(1<<CS); // MOSI, SCK, CS
+    SPCR = (1<<SPE)|(1<<MSTR)|(1<<SPR0); // SPI enable, master, fosc/16
+}
+
+void SPI_send(uint8_t d) {
+    SPDR = d;
+    while (!(SPSR & (1<<SPIF)));
+}
+
+// -------------------------------------------------------
+// TFT low-level
+// -------------------------------------------------------
+void cmd(uint8_t c) {
+    DC_LOW();
+    CS_LOW();
+    SPI_send(c);
+    CS_HIGH();
+}
+
+void data(uint8_t d) {
+    DC_HIGH();
+    CS_LOW();
+    SPI_send(d);
+    CS_HIGH();
+}
+
+// -------------------------------------------------------
+// ADDRESS WINDOW — Red tab offsets: X+2, Y+1
+// -------------------------------------------------------
+void setAddr(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1) {
+    cmd(0x2A); 
+    data(0x00); data(x0 + 0);
+    data(0x00); data(x1 + 0);
+
+    cmd(0x2B);
+    data(0x00); data(y0 + 0);
+    data(0x00); data(y1 + 0);
+
+    cmd(0x2C);
+}
+
+void drawPixel(uint8_t x, uint8_t y, uint16_t color) {
+    setAddr(x, y, x, y);
+    data(color >> 8);
+    data(color & 0xFF);
+}
+
+// -------------------------------------------------------
+// ST7735 RED TAB initialization (100% correct)
+// -------------------------------------------------------
+void ST7735_init() {
+    RST_LOW();
+    _delay_ms(50);
+    RST_HIGH();
+    _delay_ms(150);
+
+    cmd(0x01); _delay_ms(150); // SW reset
+    cmd(0x11); _delay_ms(150); // Sleep out
+
+    cmd(0x3A); data(0x05);     // 16-bit color
+    cmd(0x36); data(0xC8);     // MADCTL: row/col order for red tab
+
+    // Frame rate control
+    cmd(0xB1); data(0x01); data(0x2C); data(0x2D);
+    cmd(0xB2); data(0x01); data(0x2C); data(0x2D);
+    cmd(0xB3); data(0x01); data(0x2C); data(0x2D); data(0x01); data(0x2C); data(0x2D);
+
+    cmd(0xB4); data(0x07);      // Inversion control
+
+    // Power sequence
+    cmd(0xC0); data(0xA2); data(0x02); data(0x84);
+    cmd(0xC1); data(0xC5);
+    cmd(0xC2); data(0x0A); data(0x00);
+    cmd(0xC3); data(0x8A); data(0x2A);
+    cmd(0xC4); data(0x8A); data(0xEE);
+    cmd(0xC5); data(0x0E);
+
+    // Gamma correction
+    cmd(0xE0);
+    data(0x02); data(0x1C); data(0x07); data(0x12); data(0x37); data(0x32);
+    data(0x29); data(0x2D); data(0x29); data(0x25); data(0x2B); data(0x39);
+    data(0x00); data(0x01); data(0x03); data(0x10);
+
+    cmd(0xE1);
+    data(0x03); data(0x1D); data(0x07); data(0x06); data(0x2E); data(0x2C);
+    data(0x29); data(0x2D); data(0x2E); data(0x2E); data(0x37); data(0x3F);
+    data(0x00); data(0x00); data(0x02); data(0x10);
+
+    cmd(0x13); // Normal display mode
+    cmd(0x29); // Display on
+}
+
+// -------------------------------------------------------
+// TEXT DRAWING
+// -------------------------------------------------------
+void drawChar(uint8_t x, uint8_t y, char ch, uint16_t color, uint16_t bg) {
+    if (ch < 32 || ch > 126) return;
+    const uint8_t *bitmap = font5x7[ch - 32];
+
+    for (uint8_t col = 0; col < 5; col++) {
+        uint8_t line = bitmap[col];
+        for (uint8_t row = 0; row < 7; row++) {
+            if (line & 0x01)
+                drawPixel(x + col, y + row, color);
+            else
+                drawPixel(x + col, y + row, bg);
+            line >>= 1;
+        }
+    }
+}
+
+void drawString(uint8_t x, uint8_t y, const char *s, uint16_t color, uint16_t bg) {
+    while (*s) {
+        drawChar(x, y, *s, color, bg);
+        x += 6;
+        s++;
+    }
+}
+
+// -------------------------------------------------------
+// COLORS (RGB565)
+// -------------------------------------------------------
+#define RED     0xF800
+#define GREEN   0x07E0
+#define BLUE    0x001F
+#define WHITE   0xFFFF
+#define BLACK   0x0000
+#define YELLOW  0xFFE0
+
+// -------------------------------------------------------
+// MAIN
+// -------------------------------------------------------
+int main() {
+    DDRB |= (1<<DC)|(1<<RST); // Outputs for DC, RST
+
+    SPI_init();
+    ST7735_init();
+
+    // Fill screen black manually by drawing pixels
+    for(uint8_t y=0; y<160; y++)
+        for(uint8_t x=0; x<128; x++)
+            drawPixel(x,y,BLACK);
+
+    drawString(10, 20, "I AM GOING HOME", WHITE, BLACK);
+    drawString(10, 40, "I WILL TOTALLY COME",  YELLOW, BLACK);
+    drawString(10, 60, "10:00",  YELLOW, BLACK);
+
+    while (1) { }
+}
