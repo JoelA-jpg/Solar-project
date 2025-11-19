@@ -10,11 +10,11 @@ static inline uint16_t p_funcx(uint16_t pos, uint16_t V_meas, int16_t K){
     int32_t delta = (num + (num >= 0 ? 2 : -2)) / 100;
     int32_t output = pos + delta;
     //prevent out of bounds
-    if(output>2500){
-        output = 2500;
+    if(output>1700){
+        output = 1700;
     }
-    if(output<500){
-        output = 500;
+    if(output<800){
+        output = 800;
     } 
     return (uint16_t)output;      
 }
