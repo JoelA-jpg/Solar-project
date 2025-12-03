@@ -35,8 +35,8 @@ static inline uint16_t p_funcy(uint16_t pos, uint16_t V_meas, int16_t K){
     return (uint16_t)output;      
 }
 
-static inline uint16_t MMPT_pulse(uint16_t P_old, uint16_t P_new, uint16_t MPPT_pw){
-       
+static inline uint16_t MMPT_pulse(uint16_t P_delta, uint16_t I_delta, uint16_t V_old, uint16_t V_new,  uint16_t MPPT_pw){
+
 }
 
 
