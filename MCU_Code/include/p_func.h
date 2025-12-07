@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-static inline uint16_t p_funcx(uint16_t pos, uint16_t V_meas, int16_t K){
+static inline uint16_t p_funcy(uint16_t pos, uint16_t V_meas, int16_t K){
     int16_t diff = (int16_t)(V_meas - 512);
     
     int32_t num   = (int32_t)2 * (int32_t)K * (int32_t)diff;
@@ -19,7 +19,7 @@ static inline uint16_t p_funcx(uint16_t pos, uint16_t V_meas, int16_t K){
     return (uint16_t)output;      
 }
 
-static inline uint16_t p_funcy(uint16_t pos, uint16_t V_meas, int16_t K){
+static inline uint16_t p_funcx(uint16_t pos, uint16_t V_meas, int16_t K){
     int16_t diff = (int16_t)(V_meas - 512);
     
     int32_t num   = (int32_t)2 * (int32_t)K * (int32_t)diff;
@@ -34,6 +34,22 @@ static inline uint16_t p_funcy(uint16_t pos, uint16_t V_meas, int16_t K){
     } 
     return (uint16_t)output;      
 }
+
+//hystersis bang bang control for 360 degree servo
+static inline uint16_t p_bangbang(uint16_t V_meas, int16_t K, int16_t tol){
+    int16_t diff = (int16_t)(V_meas - 512);
+    uint16_t output = 1500;
+    
+    //prevent out of bounds
+    if(diff>512+tol){
+        output = 1500+K;
+    }
+    else if(diff<512-tol){
+        output = 1500-K;
+    } 
+    return output;      
+}
+
 
 static inline uint16_t MMPT_pulse(uint16_t P_old, uint16_t P_new, uint16_t MPPT_pw){
        
