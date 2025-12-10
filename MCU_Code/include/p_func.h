@@ -13,8 +13,8 @@ static inline uint16_t p_funcy(uint16_t pos, uint16_t V_meas, int16_t K){
     if(output>1700){
         output = 1700;
     }
-    if(output<800){
-        output = 800;
+    if(output<1000){
+        output = 1000;
     } 
     return (uint16_t)output;      
 }
@@ -35,9 +35,6 @@ static inline uint16_t p_funcx(uint16_t pos, uint16_t V_meas, int16_t K){
     return (uint16_t)output;      
 }
 
-static inline uint16_t MMPT_pulse(uint16_t P_delta, uint16_t I_delta, uint16_t V_old, uint16_t V_new,  uint16_t MPPT_pw){
-
-}
 //hystersis bang bang control for 360 degree servo
 static inline uint16_t p_bangbang(uint16_t V_meas, int16_t K, int16_t tol){
     uint16_t output = 1500;
@@ -55,7 +52,7 @@ static inline uint16_t p_bangbang(uint16_t V_meas, int16_t K, int16_t tol){
 
 static inline uint16_t MMPT_pulse(uint16_t P_old, uint16_t P_new, uint16_t MPPT_pw){
        
-
+    return (uint16_t)0;
 }
 
 
