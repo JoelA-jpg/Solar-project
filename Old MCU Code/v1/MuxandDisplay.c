@@ -171,7 +171,7 @@ void drawString(uint8_t x, uint8_t y, const char *s, uint16_t color, uint16_t bg
 
 void init(){
     DDRD |= (1 << PD0) | (1 << PD1) | (1 << PD2); //Designate as output
-    PORTD |= (0 << PD0) | (0 << PD1) | (0 << PD2); //Status of output pin
+    PORTD |= (1 << PD0) | (1 << PD1) | (1 << PD2); //Status of output pin
 }
 
 void adc_init(void)
@@ -201,9 +201,8 @@ float adc_read(uint8_t channel)
 
 void mux_measure(){
     for(int i = 0; i < 4; i++){
-        PORTD = truth_table[i];
+        DDRD = (~truth_table[i]) & 0b00000111;
         _delay_ms(3000 * 8);
-
         if(i < 4){
             measurements[i] = adc_read(0); //Strom matning
         }
