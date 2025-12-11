@@ -3,6 +3,8 @@
 #include <util/delay.h>
 #include "font.h"
 
+#include <stdlib.h> //String formatting stuff
+
 #define F_CPU 8000000UL
 
 #define CS   PB2
@@ -16,7 +18,16 @@
 #define RST_LOW()  (PORTB &= ~(1<<RST))
 #define RST_HIGH() (PORTB |=  (1<<RST))
 
-uint8_t measurements[8];
+float measurements[8] = {
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+};
 uint8_t truth_table[8] = {
     0b00000000,
     0b00000001,
@@ -159,8 +170,8 @@ void drawString(uint8_t x, uint8_t y, const char *s, uint16_t color, uint16_t bg
 #define YELLOW  0xFFE0
 
 void init(){
-    DDRB |= (1 << PB0) | (1 << PB1) | (1 << PB2); //Designate as output
-    PORTB |= (0 << PB0) | (0 << PB1) | (0 << PB2); //Status of output pin
+    DDRD |= (1 << PD0) | (1 << PD1) | (1 << PD2); //Designate as output
+    PORTD |= (0 << PD0) | (0 << PD1) | (0 << PD2); //Status of output pin
 }
 
 void adc_init(void)
@@ -172,7 +183,7 @@ void adc_init(void)
     ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
 }
 
-uint16_t adc_read(uint8_t channel)
+float adc_read(uint8_t channel)
 {
     // Select ADC channel (0–7)
     ADMUX = (ADMUX & 0xF0) | (channel & 0x0F);
@@ -184,12 +195,14 @@ uint16_t adc_read(uint8_t channel)
     while (ADCSRA & (1 << ADSC));
 
     // Read result
-    return ADC;
+    float raw = ADC;
+    return (5.0 / 1023.0) * raw;
 }
 
 void mux_measure(){
-    for(int i = 0; i < 9; i++){
-        PORTB = truth_table[i];
+    for(int i = 0; i < 4; i++){
+        PORTD = truth_table[i];
+        _delay_ms(3000 * 8);
 
         if(i < 4){
             measurements[i] = adc_read(0); //Strom matning
@@ -200,24 +213,44 @@ void mux_measure(){
     }
 }
 
+
+/*
+Display pins
+LED = 5V
+SCK = PB5
+SDA = PB3
+A0 = PB1
+RESET = PB0
+CS = PB2
+GND = GND
+VCC = 5V
+*/
 int main(void)
 {
 
     DDRB |= (1<<DC)|(1<<RST); // Outputs for DC, RST
     SPI_init();
     ST7735_init();
+    adc_init();
+
+    for(uint8_t y=0; y<160; y++)
+        for(uint8_t x=0; x<128; x++)
+            drawPixel(x,y,BLACK);
+
+    drawString(10, 20, "Init complete", WHITE, BLACK);
 
     while (1)
     {
-        mux_measure();
+    mux_measure();        
+    for(uint8_t y=0; y<160; y++)
+        for(uint8_t x=0; x<128; x++)
+            drawPixel(x,y,BLACK);
 
-        for(uint8_t y=0; y<160; y++)
-            for(uint8_t x=0; x<128; x++)
-                drawPixel(x,y,BLACK);
-
-        drawString(10, 20, "I AM GOING HOME", WHITE, BLACK);
-        drawString(10, 40, "I WILL TOTALLY COME",  YELLOW, BLACK);
-        drawString(10, 60, "10:00",  YELLOW, BLACK);
+    for (int i = 0; i < 4; i++){
+        char buffer[10];
+        dtostrf(measurements[i], 4, 2, buffer);
+        drawString(10, 20+(10*i), buffer, WHITE, BLACK);
+    }
 
     }
 }
