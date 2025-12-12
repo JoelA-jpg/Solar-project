@@ -13,8 +13,8 @@ static inline uint16_t p_funcy(uint16_t pos, uint16_t V_meas, int16_t K){
     if(output>1700){
         output = 1700;
     }
-    if(output<1000){
-        output = 1000;
+    if(output<1100){
+        output = 1100;
     } 
     return (uint16_t)output;      
 }
