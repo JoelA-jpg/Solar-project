@@ -18,7 +18,7 @@ volatile uint16_t PERIOD1 = 20000 * 1.01;
 
 // Initialize Timer1
 void Timer0_init(void){
-    DDRB |= (1 << PD6);        // PD6 / OC0A as output
+    DDRD |= (1 << PD6);        // PD6 / OC0A as output
 
     TCCR0A = (1 << WGM01) | (0 << WGM00);
     TCCR0B = (0 << WGM02) | (1 << CS02) | (0 << CS01) | (1 << CS00); // CTC mode, no prescaler
