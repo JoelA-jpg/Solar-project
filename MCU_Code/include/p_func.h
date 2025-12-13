@@ -37,14 +37,14 @@ static inline uint16_t p_funcx(uint16_t pos, uint16_t V_meas, int16_t K){
 
 //hystersis bang bang control for 360 degree servo
 static inline uint16_t p_bangbang(uint16_t V_meas, int16_t K, int16_t tol){
-    uint16_t output = 1500;
+    uint16_t output = 1600;
     
     //move towards center if outside tolerance
     if(V_meas>512+tol){
-        output = 1500+K;
+        output = output+K;
     }
     else if(V_meas<512-tol){
-        output = 1500-K;
+        output = output-K;
     } 
     return output;      
 }

@@ -137,8 +137,8 @@ int main(void)
         ADCSRA |= (1 << ADSC);
         loop_until_bit_is_clear(ADCSRA, ADSC);
         adc_value0 = ADC; // Read ADC value (0-1023)
-        pw0 = p_bangbang(adc_value0, 200 , 25); // bang bang control pw
-        Update_Pulse0(2000); // update high pulse width dynamically
+        pw0 = p_bangbang(adc_value0, 300 , 25); // bang bang control pw
+        Update_Pulse0(pw0); // update high pulse width dynamically
         _delay_ms(20*8.14);
         
     }
