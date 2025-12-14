@@ -41,6 +41,14 @@ static inline void initADC0(void){
     ADCSRA |= (1 << ADEN); // enable ADC
 }
 
+static inline void initADC1(void){
+    // ADC1 and AVCC as reference
+    ADMUX = (1 << REFS0) | (1 << MUX0); // REFS0=1: AVCC, MUX[3:0]=1: ADC1
+    ADMUX &= 0xF1; // Clear MUX bits except MUX0
+    ADCSRA |= (1 << ADPS1) | (1 << ADPS0); // prescaler = 8
+    ADCSRA |= (1 << ADEN); // enable ADC
+}
+
 // Timer0A
 ISR(TIMER0_COMPA_vect)
 {
@@ -97,6 +105,7 @@ int main(void)
 {
     Timer0_init();
     initADC0();
+    initADC1();
     sei(); // enable global interrupts
 
     //init variables
