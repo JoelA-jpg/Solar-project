@@ -50,7 +50,8 @@ static inline uint16_t p_bangbang(uint16_t V_meas, int16_t K, int16_t tol){
 }
 
 
-static inline uint16_t MMPT_pulse(uint16_t P_old, uint16_t P_new, uint16_t MPPT_pw){
+static inline uint16_t MMPT_pulse(uint16_t P_old, uint16_t P_new, uint16_t I_old,
+    uint16_t I_new, uint16_t V_old, uint16_t V_new, uint16_t MPPT_pw){
        
 }
 
