@@ -76,7 +76,7 @@ int main(void)
         loop_until_bit_is_clear(ADCSRA, ADSC); 
         adc_value = ADC; // Read ADC value (0-1023)
         //pw = p_funcy(pw, adc_value, 5*K); // proportional control pw
-        pw = p_bangbang(adc_value, 200 , 20); // bang bang control pw
+        pw = p_bangbang(adc_value, 300 , 20); // bang bang control pw
         Update_Pulse(pw); // update high pulse width dynamically
         _delay_ms(20*8.14);
         
