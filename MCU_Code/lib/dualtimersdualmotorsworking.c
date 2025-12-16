@@ -130,14 +130,14 @@ int main(void)
         ADCSRA |= (1 << ADSC); 
         loop_until_bit_is_clear(ADCSRA, ADSC); 
         adc_value1 = ADC; // Read ADC value (0-1023)
-        pw1 = p_funcy(pw1, adc_value1, 2*K); // proportional control pw
+        pw1 = p_funcy(pw1, adc_value1, 4*K); // proportional control pw
         Update_Pulse1(pw1); // update high pulse width dynamically
 
         ADMUX = (ADMUX & 0xF0) | 0x00;   // select ADC0
         ADCSRA |= (1 << ADSC);
         loop_until_bit_is_clear(ADCSRA, ADSC);
         adc_value0 = ADC; // Read ADC value (0-1023)
-        pw0 = p_bangbang(adc_value0, 300 , 100); // bang bang control pw
+        pw0 = p_bangbang(adc_value0, 250 , 150); // bang bang control pw
         Update_Pulse0(pw0); // update high pulse width dynamically
         _delay_ms(20*8.14);
         
