@@ -16,58 +16,44 @@ volatile uint8_t phase = 0;           // 0 = high, 1 = low
 volatile uint16_t PERIOD = 80;// * 1.01;
 
 // Initialize Timer1
-void Timer1_init(void)
+static inline void pwm0_init_100kHz(void)
 {
-    DDRB |= (1 << PB1);        // PB1 / OC1A as output
+    DDRD |= (1 << PD5); // PD5 = OC0B
 
-    TCCR1A = 0;                // normal port operation
-    TCCR1B = (1 << WGM12) | (0 << CS12) | (0 << CS11) | (1 << CS10); // CTC mode, no prescaler
+    // Fast PWM, TOP = OCR0A (Mode 7)
+    TCCR0A = (1 << COM0B1) | (1 << WGM01) | (1 << WGM00);
+    TCCR0B = (1 << WGM02)  | (1 << CS00);   // prescaler=1
 
-    OCR1A = pulsewidth;       // initial compare value
-    TIMSK1 = (1 << OCIE1A);    // enable compare A interrupt
+    OCR0A = 79;   // TOP -> 100 kHz at 8 MHz
+    OCR0B = 40;   // duty (0..79)
 }
 
-// Update pulse width dynamically
-void Update_Pulse(uint16_t pw)
+// duty in percent: 0..100
+static inline void pwm0_set_duty_percent(uint8_t percent)
 {
-    pulsewidth = pw;
-}
+    if (percent > 100) percent = 100;
 
-// Timer1 Compare Match A ISR
-ISR(TIMER1_COMPA_vect)
-{
-    if (phase == 0)
-    {
-        // End of high pulse → set pin low
-        PORTB &= ~(1 << PB1);
-        phase = 1;
-        //OCR1A = pulsewidth - 1;
-        OCR1A = PERIOD - pulsewidth; // low phase duration 8.14
-    }
-    else
-    {
-        // End of low phase → set pin high
-        PORTB |= (1 << PB1);
-        phase = 0;
-        //OCR1A = (PERIOD - pulsewidth) - 1;
-        OCR1A = pulsewidth * 1.01;          // high phase duration
-    }
+    uint16_t top = OCR0A;                    // 79
+    uint16_t val = ((uint32_t)top * percent) / 100;
+
+    OCR0B = (uint8_t)val;                    // set duty on OC0B
 }
 
 int main(void)
 {
-    Timer1_init();
-    sei(); // enable global interrupts
-
-    uint16_t pw = 30;
+    pwm0_init_100kHz();
 
     while (1)
     {
-        // Sweep pulse from MIN_PULSE to MAX_PULSE
-
-        for(int i = 1; i < 5; i++){
-        Update_Pulse(0 + pw*1); // update high pulse width dynamically
-        _delay_ms(3000);
+        // simple sweep: 10% -> 90% -> 10%
+        for (uint16_t d = 0; d <= 100; d += 2) {
+            pwm0_set_duty_percent(d);
+            for (volatile uint32_t i=0; i<40000; i++) { } // crude delay
         }
+        for (int d = 100; d >= 0; d -= 2) {
+            pwm0_set_duty_percent((uint16_t)d);
+            for (volatile uint32_t i=0; i<40000; i++) { }
+        }
+        //pwm1_set_duty_percent(70);
     }
 }
