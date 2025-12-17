@@ -50,14 +50,16 @@ static inline uint16_t p_bangbang(uint16_t V_meas, int16_t K, int16_t tol){
 }
 
 
-static inline uint16_t MPPT_pulse(uint16_t P_old, uint16_t P_new, uint16_t I_old,
-    uint16_t I_new, uint16_t V_old, uint16_t V_new, uint16_t MPPT_pw, uint16_t step,
-    uint16_t period){
-    int16_t d_P = P_old - P_new;
-    int16_t d_I = I_old - I_new;
-    int16_t d_V = V_old - V_new;
+static inline uint16_t MPPT_pulse(float P_old, float P_new, float I_old,
+    float I_new, float V_old, float V_new, uint16_t MPPT_pw){
+    float d_P = P_old - P_new;
+    float d_I = I_old - I_new;
+    float d_V = V_old - V_new;
+    float dVeps = 0.05; //voltage change threshold
+    float dIeps = 0.002; //current change threshold
+    int16_t step = 1;
 
-    if(d_V){ // (d_V > 2 || d_V < -2)
+    if(d_V > dVeps || d_V < -dVeps){ //(d_V) (d_V > dVeps || d_V < -dVeps)
         //int16_t ineq = d_P/d_V;
         if((d_P > 0 && d_V > 0) || (d_P < 0 && d_V < 0)){ // (d_P > 2*d_V) alt if ((d_P > 0 && d_V > 0) || (d_P < 0 && d_V < 0))
             MPPT_pw = MPPT_pw + step;
@@ -67,20 +69,20 @@ static inline uint16_t MPPT_pulse(uint16_t P_old, uint16_t P_new, uint16_t I_old
         }
     }
     else{
-        if (d_I > 0){
+        if (d_I > dIeps){
             MPPT_pw = MPPT_pw + step;
         }
-        else if (d_I < 0){
+        else if (d_I < -dIeps){
             MPPT_pw = MPPT_pw - step;
         }
     }
 
     //prevent out of bounds
-    if(MPPT_pw > (2*period)/3){
-        MPPT_pw = (2*period)/3;
+    if(MPPT_pw > 70){
+        MPPT_pw = 70;
     }
-    else if(MPPT_pw < period/3){
-        MPPT_pw = period/3;
+    else if(MPPT_pw < 30){
+        MPPT_pw = 30;
     }
 
     return MPPT_pw;
