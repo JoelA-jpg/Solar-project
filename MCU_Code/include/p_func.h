@@ -62,18 +62,18 @@ static inline uint16_t MPPT_pulse(float P_old, float P_new, float I_old,
     if(d_V > dVeps || d_V < -dVeps){ //(d_V) (d_V > dVeps || d_V < -dVeps)
         //int16_t ineq = d_P/d_V;
         if((d_P > 0 && d_V > 0) || (d_P < 0 && d_V < 0)){ // (d_P > 2*d_V) alt if ((d_P > 0 && d_V > 0) || (d_P < 0 && d_V < 0))
-            MPPT_pw = MPPT_pw + step;
+            MPPT_pw = MPPT_pw - step;
         }
         else if ((d_P > 0 && d_V < 0) || (d_P < 0 && d_V > 0)){ // (d_P < -2*d_V) alt if ((d_P > 0 && d_V < 0) || (d_P < 0 && d_V > 0))
-            MPPT_pw = MPPT_pw - step;
+            MPPT_pw = MPPT_pw + step;
         }
     }
     else{
         if (d_I > dIeps){
-            MPPT_pw = MPPT_pw + step;
+            MPPT_pw = MPPT_pw - step;
         }
         else if (d_I < -dIeps){
-            MPPT_pw = MPPT_pw - step;
+            MPPT_pw = MPPT_pw + step;
         }
     }
 
