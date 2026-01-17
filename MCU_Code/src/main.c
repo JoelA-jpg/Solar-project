@@ -34,7 +34,9 @@ volatile float I = 0.0;
 volatile float V_old = 0.0;
 volatile float P_old = 0.0;
 volatile float I_old = 0.0;
-
+volatile float V_out = 0.0;
+volatile float I_out = 0.0;
+volatile float P_out = 0.0;
 
 void SPI_init() {
     DDRB |= (1<<PB3)|(1<<PB5)|(1<<CS); // MOSI, SCK, CS
@@ -215,7 +217,6 @@ void adc_init(void)
     ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
 }
 
-
 void adc_read()
 {
     uint16_t adc_raw;
@@ -230,7 +231,7 @@ void adc_read()
     while (ADCSRA & (1 << ADSC));
     // Read result
     adc_raw = ADC;
-    V=V_CONV * (float)adc_raw; //voltage in volts
+    V=23.7/ 1023 * (float)adc_raw; //voltage in volts
 
 
     ADMUX = (ADMUX & 0xF0) | (1 & 0x0F);
@@ -240,8 +241,28 @@ void adc_read()
     while (ADCSRA & (1 << ADSC));
     // Read result
     adc_raw = ADC;
-    I=I_CONV * (float)adc_raw; //current
+    I=(5.0f/1023.0f*0.202f/4.56f)* (float)adc_raw; //current
     P=V*I; 
+
+
+    ADMUX = (ADMUX & 0xF0) | (3 & 0x0F);
+    // Start conversion
+    ADCSRA |= (1 << ADSC);
+    // Wait for conversion to finish
+    while (ADCSRA & (1 << ADSC));
+    // Read result
+    adc_raw = ADC;
+    V_out=(7.0/1023) * (float)adc_raw; //current
+
+    ADMUX = (ADMUX & 0xF0) | (4 & 0x0F);
+    // Start conversion
+    ADCSRA |= (1 << ADSC);
+    // Wait for conversion to finish
+    while (ADCSRA & (1 << ADSC));
+    // Read result
+    adc_raw = ADC;
+    I_out=3.0*(5.0f/1023.0f*0.202f/4.56f)* (float)adc_raw; //current
+    P_out=V_out*I_out; 
 }
 
 
@@ -310,12 +331,29 @@ int main(void)
                     drawPixel(x,y,BLACK);
             */
             char buffer[10];
-            dtostrf(P, 8, 6, buffer);
-            drawString(10, 20+(10*1), buffer, WHITE, BLACK);
-            dtostrf(I, 8, 6, buffer);
-            drawString(10, 20+(10*2), buffer, WHITE, BLACK);
-            dtostrf(V, 8, 5, buffer);
-            drawString(10, 20+(10*3), buffer, WHITE, BLACK);
+            dtostrf(P, 6, 4, buffer);
+            drawString(10, 20, "PV CELL INPUT:", WHITE, BLACK);
+            drawString(10, 20+(10*1), "P:", WHITE, BLACK);
+            drawString(24, 20+(10*1), buffer, WHITE, BLACK);
+            dtostrf(I, 6, 4, buffer);
+            drawString(10, 20+(10*2), "I:", WHITE, BLACK);
+            drawString(24, 20+(10*2), buffer, WHITE, BLACK);
+            dtostrf(V, 6, 4, buffer);
+            drawString(10, 20+(10*3), "V:", WHITE, BLACK);
+            drawString(24, 20+(10*3), buffer, WHITE, BLACK);
+
+            /*
+            dtostrf(P_out, 6, 4, buffer);
+            drawString(10, 70, "BATTERY INPUT", WHITE, BLACK);
+            drawString(10, 20+(10*6), "P:", WHITE, BLACK);
+            drawString(24, 20+(10*6), buffer, WHITE, BLACK);
+            dtostrf(I_out, 6, 4, buffer);
+            drawString(10, 20+(10*7), "I:", WHITE, BLACK);
+            drawString(24, 20+(10*7), buffer, WHITE, BLACK);
+            dtostrf(V_out, 6, 4, buffer);
+            drawString(10, 20+(10*8), "V:", WHITE, BLACK);
+            drawString(24, 20+(10*8), buffer, WHITE, BLACK);
+            */
             i=0;
         }
         i++;
